@@ -1,17 +1,13 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 
 import { setupServer } from 'msw/node';
 import { rest } from 'msw';
-
-import data from './data';
-
-jest.setTimeout(10000);
+import data from './data.json';
 
 export const server = setupServer(
   rest.get('https://jsonplaceholder.typicode.com/comments', (req, res, ctx) => {
-    console.log('mocked response', data);
-    return res(ctx.status(200), ctx.json(data));
+    return res(ctx.json(data));
   })
 );
 
@@ -28,15 +24,7 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 test('comments must be loaded from api', async () => {
-  await render(<App />);
-
-  function sleep(ms) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(), ms);
-    });
-  }
-
-  await sleep(3000);
+  render(<App />);
 
   expect(await screen.findByText(/Resultats ok/i)).toBeInTheDocument();
 });
